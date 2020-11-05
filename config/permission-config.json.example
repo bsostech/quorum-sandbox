@@ -1,0 +1,16 @@
+{
+	"upgrdableAddress": "0x1932c48b2bf8102ba33b4a6b545c32236e342f34",
+	"interfaceAddress": "0xe62a84ad37f45ad4cb238192bb996ddc1afcb69a",
+	"implAddress": "0x84272f3e148eb3f957e3df666d91a15a6bd1db7f",
+	"nodeMgrAddress": "0xfe0602d820f42800e3ef3f89e1c39cd15f78d283",
+	"accountMgrAddress": "0x064f860b6683223b03b38252853d5d2c210cce19",
+	"roleMgrAddress": "0x8a5e2a6343108babed07899510fb42297938d41f",
+	"voterMgrAddress": "0xa501afd7d6432718daf4458cfae8590d88de818e",
+	"orgMgrAddress": "0x9d13c6d3afe1721beef56b55d303b09e021e27ab",
+	"nwAdminOrg": "foo",
+	"nwAdminRole": "admin",
+	"orgAdminRole": "admin",
+	"accounts": ["0xed9d02e382b34818e88b88a309c7fe71e65f419d"],
+	"subOrgBreadth": 3,
+	"subOrgDepth": 3
+}
