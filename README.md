@@ -139,12 +139,8 @@ $ scripts/stop.sh
 $ scripts/start.sh node-1
 ```
 
-### Run a script
-```
-$ scripts/run.sh contracts/public-contracts.js
-```
-
 ---
+
 ## Add an Additional Node
 In this turorial, we need to interact with permissioning contracts to grant access to the new node.
 
@@ -243,7 +239,7 @@ This should return the following results:
 }
 ```
 
-Next, login to the `node-1` console to `addPeer`. **This step is essential otherwise `node-1` will not be able to connect `node-2`**.
+Next, login to the `node-1` console to `addPeer`. **This step is essential otherwise `node-1` will not be able to connect to `node-2`**.
 
 ```
 $ geth attach qdata/node-1/geth.ipc
@@ -260,3 +256,12 @@ Here are the ports we use:
 - `raftport`: 60001
 - `rpcport`: 32001
 - `node port`: 31001
+
+### Run a script
+Now we can send a transction to the permissioned network. Ideally we should be able to get this transaction receipt in both `node-1` and `node-2`:
+
+```
+$ scripts/run.sh contracts/public-contracts.js
+Contract transaction send: TransactionHash: 0xc98d304b2fd7fd6889469df284b2b520f50f6fa926d77f7a05ac5c7e71eb43e2 waiting to be mined...
+true
+```
