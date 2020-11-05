@@ -39,7 +39,7 @@ $ cp config/genesis.json.example qdata/genesis.json
 
 Replace the first `alloc` address with the address generated in the previous step.
 
-Next, generate the nodekey
+Next, generate the nodekey:
 ```
 $ bootnode --genkey=qdata/node-1/geth/nodekey
 $ bootnode --nodekey=qdata/node-1/geth/nodekey --writeaddress > qdata/node-1/enode
@@ -66,7 +66,6 @@ $ geth --datadir qdata/node-1 init qdata/genesis.json
 ```
 
 ### Start
-
 ```
 $ scripts/start.sh node-1
 ```
@@ -77,7 +76,6 @@ Here are the ports we use:
 - `node port`: 31000
 
 ### Deploy Permissioning Contracts
-
 In this tutorial, we just use the pre-built contracts that locates at `config`:
 
 ```
@@ -89,7 +87,7 @@ The deployment is a bit handy. Let's do it one by one.
 #### 1. Upgradable Contract
 In PermissionUpgradable contract, replace the argument of `simpleContract.new` with the address of node 1 account.
 
-Then deploy permissionUpgradable contract:
+Then deploy:
 
 ```
 $ scripts/deploy-contract.sh qdata/permissioning/deploy-PermissionsUpgradable.js
@@ -110,7 +108,9 @@ $ scripts/deploy-contract.sh qdata/permissioning/deploy-PermissionsInterface.js
 ```
 
 #### 3. Implementation Contract
-- In PermissionImplementation contract, replace the arguments of `simpleContract.new` with the contract addresses of upgradeContract, orgManager, roleManager, accountManager, voteManager, and nodeManager, in order.
+In PermissionImplementation contract, replace the arguments of `simpleContract.new` with the contract addresses of upgradeContract, orgManager, roleManager, accountManager, voteManager, and nodeManager, in order.
+
+Then deploy:
 
 ```
 $ scripts/deploy-contract.sh qdata/permissioning/deploy-PermissionsImplementation.js
@@ -125,6 +125,7 @@ $ scripts/permission-init.sh
 
 #### 5. Config `permission-nodes.json`
 Create the permissioning config file:
+
 ```
 $ cp config/permission-config.json.example qdata/node-1/permission-config.json
 ```
@@ -160,9 +161,7 @@ Public address of the key:   0xee80b5e9F3b652084aebff39656EeFd10cb5A259
 ...
 ```
 
-<!-- Replace the second `alloc` address with the address generated in the previous step. -->
-
-Next, generate the nodekey
+Next, generate the nodekey:
 ```
 $ bootnode --genkey=qdata/node-2/geth/nodekey
 $ bootnode --nodekey=qdata/node-2/geth/nodekey --writeaddress > qdata/node-2/enode
@@ -239,7 +238,7 @@ This should return the following results:
 }
 ```
 
-Next, login to the `node-1` console to `addPeer`. **This step is essential otherwise `node-1` will not be able to connect to `node-2`**.
+Next, login to the `node-1` console to `addPeer`. **This step is essential otherwise `node-1` will not be able to connect to `node-2`**:
 
 ```
 $ geth attach qdata/node-1/geth.ipc
