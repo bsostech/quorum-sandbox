@@ -1,3 +1,5 @@
+#!/bin/bash
+
 runInit(){
     x=$(geth attach ipc:$(pwd)/qdata/node-1/geth.ipc <<EOF
     loadScript("qdata/permissioning/load-PermissionsUpgradable.js");
