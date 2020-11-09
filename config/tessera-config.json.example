@@ -1,0 +1,50 @@
+{
+   "useWhiteList": false,
+   "jdbc": {
+       "username": "sa",
+       "password": "",
+       "url": "jdbc:h2:/yourpath/tdata/node-1/db1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0",
+       "autoCreateTables": true
+   },
+   "serverConfigs":[
+       {
+           "app":"ThirdParty",
+           "enabled": true,
+           "serverAddress": "http://localhost:9081",
+           "communicationType" : "REST"
+       },
+       {
+           "app":"Q2T",
+           "enabled": true,
+            "serverAddress":"unix:/yourpath/tdata/node-1/tm.ipc",
+           "communicationType" : "REST"
+       },
+       {
+           "app":"P2P",
+           "enabled": true,
+           "serverAddress":"http://localhost:9001",
+           "sslConfig": {
+               "tls": "OFF"
+           },
+           "communicationType" : "REST"
+       }
+   ],
+   "peer": [
+       {
+           "url": "http://localhost:9001"
+       },
+       {
+           "url": "http://localhost:9002"
+       }
+   ],
+   "keys": {
+       "passwords": [],
+       "keyData": [
+           {
+               "privateKeyPath": "/yourpath/tdata/node-1/node-1.key",
+               "publicKeyPath": "/yourpath/tdata/node-1/node-1.pub"
+           }
+       ]
+   },
+   "alwaysSendTo": []
+}

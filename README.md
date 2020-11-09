@@ -67,7 +67,7 @@ $ geth --datadir qdata/node-1 init qdata/genesis.json
 
 ### Start
 ```
-$ scripts/start.sh node-1
+$ scripts/start-quorum.sh node-1
 ```
 
 Here are the ports we use:
@@ -136,8 +136,8 @@ Also, replace `accounts` with the node-1 account address.
 
 ### Restart
 ```
-$ scripts/stop.sh
-$ scripts/start.sh node-1
+$ scripts/stop-quorum.sh
+$ scripts/start-quorum.sh node-1
 ```
 
 ---
@@ -248,7 +248,7 @@ $ geth attach qdata/node-1/geth.ipc
 ### Start
 
 ```
-$ scripts/start.sh node-2
+$ scripts/start-quorum.sh node-2
 ```
 
 Here are the ports we use:
@@ -260,7 +260,106 @@ Here are the ports we use:
 Now we can send a transction to the permissioned network. Ideally we should be able to get this transaction receipt in both `node-1` and `node-2`:
 
 ```
-$ scripts/run.sh contracts/public-contracts.js
+$ scripts/run.sh contracts/public-contract.js
 Contract transaction send: TransactionHash: 0xc98d304b2fd7fd6889469df284b2b520f50f6fa926d77f7a05ac5c7e71eb43e2 waiting to be mined...
+true
+```
+
+---
+
+## Support Private Transaction
+In order to support private transaction in Quorum, a Private Transaction Manager needs to be running. Here we use Tessera, which is one of the few PTM implementations.
+
+### Install Tessera and jenv
+Tessera is developed in Java. To install, let's download the JAR file from [here](https://github.com/ConsenSys/tessera/releases/tag/tessera-1.0.0) and then move the JAR file to `quorum-sandbox` repo:
+
+```
+$ mkdir tessera
+$ mv ~/Downloads/tessera-app-1.0.0-app.jar ./tessera
+```
+
+Here we use Tessera v1.0.0, which requires java 11.
+
+First, make sure you have Java 11 installed. If you have multiple Java versions installed, use [jenv](https://github.com/jenv/jenv) to switch to Java 11:
+
+```
+$ jenv add /Library/Java/JavaVirtualMachines/jdk-11.0.8.jdk/Contents/Home       
+$ jenv global 11
+$ jenv exec java -version
+java version "11.0.8" 2020-07-14 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.8+10-LTS)
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.8+10-LTS, mixed mode)
+```
+
+### Initialize
+First, create Tessera node folder and generate new key:
+```
+$ mkdir -p tdata/node-1
+$ cd tdata/node-1
+$ jenv exec java -jar ../../tessera/tessera-app-1.0.0-app.jar -keygen -filename node-1
+Enter a password if you want to lock the private key or leave blank
+
+Please re-enter the password (or lack of) to confirm
+
+2020-11-09 16:42:32.904 [main] INFO  com.quorum.tessera.nacl.jnacl.Jnacl - Generating new keypair...
+2020-11-09 16:42:32.935 [main] INFO  com.quorum.tessera.nacl.jnacl.Jnacl - Generated new key pair with public key PublicKey[PhcCsV13hZ4wX6DDb3DLhE7DJI1RGkL+g32ERy6I7nE=]
+2020-11-09 16:42:33.725 [main] INFO  c.q.t.k.generation.FileKeyGenerator - Saved public key to /yourpath/quorum-sandbox/tdata/node-1/node-1.pub
+2020-11-09 16:42:33.726 [main] INFO  c.q.t.k.generation.FileKeyGenerator - Saved private key to /yourpath/quorum-sandbox/tdata/node-1/node-1.key
+```
+
+Next, create the config file:
+
+```
+$ cd ../..
+$ cp config/tessera-config.json.example tdata/node-1/config.json
+```
+
+Replace every `yourpath` with the path of your `quorum-sandbox` folder.
+
+If you started 2 nodes, repeat above commands for `node-2`:
+
+```
+$ mkdir -p tdata/node-2
+$ cd tdata/node-2
+$ jenv exec java -jar ../../tessera/tessera-app-1.0.0-app.jar -keygen -filename node-2
+Enter a password if you want to lock the private key or leave blank
+
+Please re-enter the password (or lack of) to confirm
+
+2020-11-09 16:42:32.904 [main] INFO  com.quorum.tessera.nacl.jnacl.Jnacl - Generating new keypair...
+2020-11-09 16:42:32.935 [main] INFO  com.quorum.tessera.nacl.jnacl.Jnacl - Generated new key pair with public key PublicKey[PhcCsV13hZ4wX6DDb3DLhE7DJI1RGkL+g32ERy6I7nE=]
+2020-11-09 16:42:33.725 [main] INFO  c.q.t.k.generation.FileKeyGenerator - Saved public key to /yourpath/quorum-sandbox/tdata/node-2/node-2.pub
+2020-11-09 16:42:33.726 [main] INFO  c.q.t.k.generation.FileKeyGenerator - Saved private key to /yourpath/quorum-sandbox/tdata/node-2/node-2.key
+```
+```
+$ cd ../..
+$ cp config/tessera-config.json.example tdata/node-2/config.json
+```
+
+Replace every `yourpath` with the path of your `quorum-sandbox` folder and `node-1` with `node-1`.
+
+### Start
+Start Tessera:
+
+```
+$ scripts/start-teserra.sh node-1
+$ scripts/start-teserra.sh node-2
+```
+
+### Restart Quorum
+Next, restart Quorum:
+
+```
+$ scripts/stop-quorum.sh
+$ scripts/start-quorum-private.sh node-1
+$ scripts/start-quorum-private.sh node-2
+```
+
+### Run a Script
+Use `private-contract.js` to test if the private transaction is applied. Before you run the script, replace the `privateFor` argument to the `node-1.pub` or `node-2.pub`:
+
+```
+$ scripts/run.sh contracts/private-contract.js
+Contract transaction send: TransactionHash: 0x60a7fc1a49e2df19ebfee63c22f7563ec0b5346573032f07099699f8b62411a3 waiting to be mined...
 true
 ```
