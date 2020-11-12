@@ -12,6 +12,12 @@ $ cd quorum-sandbox
 $ export PATH=$(pwd)/bin:$PATH
 ```
 
+### Option 1: Use Built Quorum Binary
+If you are using Mac OS, you can easily use the pre-built Quorum binary in the `bin` folder.
+
+### Option 2: Build Quorum from Source
+If the pre-built Quorum binary doesn't work in your case, please refer to [this document](https://docs.goquorum.consensys.net/en/stable/HowTo/GetStarted/Install/#from-source) to build from source.
+
 ---
 
 ## Add First Node
