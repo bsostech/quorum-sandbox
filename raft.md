@@ -1,12 +1,17 @@
 # Start a Quorum Network with Raft Consensus
+
 ## Add First Node
+
 ### Initialize
+
 First, reset the environmant:
+
 ```
 $ scripts/reset.sh
 ```
 
 Then create new account:
+
 ```
 $ mkdir -p qdata/node-raft-1/geth
 $ geth --datadir qdata/node-raft-1 account new
@@ -31,6 +36,7 @@ $ cp config/genesis.json.example qdata/node-raft-1/genesis.json
 Replace the first `alloc` address with the address generated in the previous step.
 
 Next, generate the nodekey:
+
 ```
 $ bootnode --genkey=qdata/node-raft-1/geth/nodekey
 $ bootnode --nodekey=qdata/node-raft-1/geth/nodekey --writeaddress > qdata/node-raft-1/enode
@@ -57,7 +63,9 @@ $ geth --datadir qdata/node-raft-1 init qdata/node-raft-1/genesis.json
 ```
 
 ### Start
+
 Here are the ports we use:
+
 - `raftport`: 60000
 - `rpcport`: 32000
 - `node port`: 31000
@@ -67,6 +75,7 @@ $ scripts/start-quorum.sh node-raft-1 raft
 ```
 
 ### Deploy Permissioning Contracts
+
 In this tutorial, we just use the pre-built contracts that locates at `config`:
 
 ```
@@ -76,6 +85,7 @@ $ cp -r config/permissioning_example qdata/permissioning
 The deployment is a bit handy. Let's do it one by one.
 
 #### 1. Upgradable Contract
+
 In PermissionUpgradable contract, replace the argument of `simpleContract.new` with the address of node 1 account.
 
 Then deploy:
@@ -85,6 +95,7 @@ $ scripts/deploy-contract.sh qdata/permissioning/deploy-PermissionsUpgradable.js
 ```
 
 #### 2. Manager Contracts
+
 In the `*-manager` contracts, replace the argument of `simpleContract.new` with the address of upgradable contract.
 
 Then deploy:
@@ -99,6 +110,7 @@ $ scripts/deploy-contract.sh qdata/permissioning/deploy-PermissionsInterface.js 
 ```
 
 #### 3. Implementation Contract
+
 In PermissionImplementation contract, replace the arguments of `simpleContract.new` with the contract addresses of upgradeContract, orgManager, roleManager, accountManager, voteManager, and nodeManager, in order.
 
 Then deploy:
@@ -108,6 +120,7 @@ $ scripts/deploy-contract.sh qdata/permissioning/deploy-PermissionsImplementatio
 ```
 
 #### 4. Initialize Permissioning Contracts
+
 In `load-PermissionUpgradable.js`, replace the addresses with the output of previous steps then initialize:
 
 ```
@@ -115,6 +128,7 @@ $ scripts/permission-init.sh node-raft-1
 ```
 
 #### 5. Config `permission-config.json`
+
 Create the permissioning config file:
 
 ```
@@ -124,6 +138,7 @@ $ cp config/permission-config.json.example qdata/node-raft-1/permission-config.j
 Replace the address listed in `permission-config.json` with the contract addresses above and `accounts` with the `node-raft-1` account address.
 
 ### Restart
+
 ```
 $ scripts/stop-quorum.sh
 $ scripts/start-quorum.sh node-raft-1 raft
@@ -132,9 +147,11 @@ $ scripts/start-quorum.sh node-raft-1 raft
 ---
 
 ## Add an Additional Node
+
 In this turorial, we need to interact with permissioning contracts to grant access to the new node.
 
 ### Initialize
+
 ```
 $ mkdir -p qdata/node-raft-2/geth
 $ geth --datadir qdata/node-raft-2 account new
@@ -151,12 +168,14 @@ Public address of the key:   0xee80b5e9F3b652084aebff39656EeFd10cb5A259
 ```
 
 Next, generate the nodekey:
+
 ```
 $ bootnode --genkey=qdata/node-raft-2/geth/nodekey
 $ bootnode --nodekey=qdata/node-raft-2/geth/nodekey --writeaddress > qdata/node-raft-2/enode
 ```
 
 Display enode id of the new node:
+
 ```
 $ cat qdata/node-raft-2/enode
 ```
@@ -170,7 +189,11 @@ $ cp qdata/node-raft-1/permissioned-nodes.json qdata/node-raft-2/permissioned-no
 $ cp qdata/node-raft-1/permission-config.json qdata/node-raft-2/permission-config.json
 ```
 
-In `static-nodes.json` and `permissioned-nodes.json`, add the enodeID of `node-raft-2` with the output in the previous step.
+In `static-nodes.json` and `permissioned-nodes.json`, add the enodeID of `node-raft-2` like following:
+
+```
+enode://<node2-enodeID>@127.0.0.1:31001?discport=0&raftport=60001
+```
 
 Next, initialize the new node:
 
@@ -178,7 +201,12 @@ Next, initialize the new node:
 $ geth --datadir qdata/node-raft-2 init qdata/node-raft-2/genesis.json
 ```
 
-### Perform `addNode` via Permissioning Contract
+### Perform Permission contract
+
+Choose one of following options to add node 2.
+
+#### Option 1: Use `addNode`
+
 In this step, we use this [postman API collection](https://www.getpostman.com/collections/0bb48d1645a73e275666) to perform `addNode`:
 
 ```
@@ -189,7 +217,7 @@ curl --location --request POST 'http://localhost:32000' \
     "method": "quorumPermission_addNode",
     "params": [
         "foo",
-        "enode://73e09e3a5712af82b7a6cec438381f147e7c7fbbffe8134f4f1b35829c3c5965ae86bce050d73edac25d7c5d34f822c9a4d3eff937f0c17a07b1a94dd8f92a29@127.0.0.1:31001?discport=0&raftport=60001",
+        "enode://<node2-enodeID>@127.0.0.1:31001?discport=0&raftport=60001",
         {
             "from": "0xf156AeD1Fd47584BA462f198A88f25e1e9b26175"
         }
@@ -199,6 +227,7 @@ curl --location --request POST 'http://localhost:32000' \
 ```
 
 After `addNode`, we can use `getOrgDetails` to check if `node-raft-2` is in the node list:
+
 ```
 curl --location --request POST 'http://localhost:32000' \
 --header 'Content-Type: application/json' \
@@ -206,6 +235,7 @@ curl --location --request POST 'http://localhost:32000' \
 ```
 
 This should return the following results:
+
 ```
 {
     "jsonrpc": "2.0",
@@ -214,12 +244,12 @@ This should return the following results:
         "nodeList": [
             {
                 "orgId": "foo",
-                "url": "enode://5aac4c201cf16709eead71a0b3b9623899ae4cb6a5f51fac870d6f46455f2756996daa49dfcf9604014e469b1c38416baa7c879355c77cb29b9ab5c4865f44e7@127.0.0.1:31000?discport=0&raftport=60000",
+                "url": "enode://<node1-enodeID>@127.0.0.1:31000?discport=0&raftport=60000",
                 "status": 2
             },
             {
                 "orgId": "foo",
-                "url": "enode://73e09e3a5712af82b7a6cec438381f147e7c7fbbffe8134f4f1b35829c3c5965ae86bce050d73edac25d7c5d34f822c9a4d3eff937f0c17a07b1a94dd8f92a29@127.0.0.1:31001?discport=0&raftport=60001",
+                "url": "enode://<node2-enodeID>@127.0.0.1:31001?discport=0&raftport=60001",
                 "status": 2
             }
         ],
@@ -228,31 +258,77 @@ This should return the following results:
 }
 ```
 
+#### Option 2: Use `addOrg`
+
+Run following command to add a new organization with node 2:
+
+```
+curl --location --request POST 'http://localhost:32000' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "jsonrpc": "2.0",
+    "method": "quorumPermission_addOrg",
+    "params": [
+        "foo2",
+        "enode://<node2-enodeID>@127.0.0.1:31001?discport=0&raftport=60001",
+        {
+            "from": "0xf156AeD1Fd47584BA462f198A88f25e1e9b26175"
+        }
+    ],
+    "id": 10
+}'
+```
+
+After `addOrg`, we can use `getOrgDetails` to check whether new organization is existent:
+
+```
+curl --location --request POST 'http://localhost:32000' \
+--header 'Content-Type: application/json' \
+--data-raw '{"jsonrpc":"2.0","method":"quorumPermission_getOrgDetails","params":["foo2"],"id":10}'
+```
+
+Next, you have to add `node-raft-2` information to `permissioned-nodes.json` in `node-raft-1` manually:
+
+```
+enode://<node2-enodeID>@127.0.0.1:31001?discport=0&raftport=60001
+```
+
+### Add peer to raft cluster
+
 Next, login to the `node-raft-1` console to `addPeer`. **This step is essential otherwise `node-raft-1` will not be able to connect to `node-raft-2`**:
 
 ```
 $ geth attach qdata/node-raft-1/geth.ipc
-> raft.addPeer("enode://73e09e3a5712af82b7a6cec438381f147e7c7fbbffe8134f4f1b35829c3c5965ae86bce050d73edac25d7c5d34f822c9a4d3eff937f0c17a07b1a94dd8f92a29@127.0.0.1:31001?discport=0&raftport=60001")
+> raft.addPeer("enode://<node2-enodeID>@127.0.0.1:31001?discport=0&raftport=60001")
 ```
 
 ### Start
 
 ```
-$ scripts/start-quorum.sh node-raft-2
+$ scripts/start-quorum.sh node-raft-2 raft
 ```
 
 Here are the ports we use:
+
 - `raftport`: 60001
 - `rpcport`: 32001
 - `node port`: 31001
 
 ### Run a script
+
 Now we can send a transction to the permissioned network. Ideally we should be able to get this transaction receipt in both `node-raft-1` and `node-raft-2`:
 
 ```
 $ scripts/run.sh contracts/public-contract.js node-raft-1
 Contract transaction send: TransactionHash: 0xc98d304b2fd7fd6889469df284b2b520f50f6fa926d77f7a05ac5c7e71eb43e2 waiting to be mined...
 true
+```
+
+You can verify whether `node-raft-1` and `node-raft-2` are connected by following:
+
+```
+$ geth attach qdata/node-raft-2/geth.ipc
+> eth.getTransactionReceipt('0xc98d304b2fd7fd6889469df284b2b520f50f6fa926d77f7a05ac5c7e71eb43e2')
 ```
 
 ---
@@ -273,7 +349,7 @@ Here we use Tessera v1.0.0, which requires java 11.
 First, make sure you have Java 11 installed. If you have multiple Java versions installed, use [jenv](https://github.com/jenv/jenv) to switch to Java 11:
 
 ```
-$ jenv add /Library/Java/JavaVirtualMachines/jdk-11.0.8.jdk/Contents/Home       
+$ jenv add /Library/Java/JavaVirtualMachines/jdk-11.0.8.jdk/Contents/Home
 $ jenv global 11
 $ jenv exec java -version
 java version "11.0.8" 2020-07-14 LTS
