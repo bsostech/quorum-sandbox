@@ -1,6 +1,6 @@
 ac = eth.accounts[0];
 web3.eth.defaultAccount = ac;
 var abi = [{"inputs":[{"internalType":"address","name":"_guardian","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":false,"inputs":[{"internalType":"address","name":"_proposedImpl","type":"address"}],"name":"confirmImplChange","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getGuardian","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getPermImpl","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getPermInterface","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_permInterface","type":"address"},{"internalType":"address","name":"_permImpl","type":"address"}],"name":"init","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}];
-var upgr = web3.eth.contract(abi).at("0x6777b0af8397991f78797362cfc13b5d40040247");
-var impl = "0x0d1ac7367c63820d520b768be0dfee512cb954c0"
-var intr = "0x2342682a1a9eb9eb523b6a905173f3afcb5eb9e7"
+var upgr = web3.eth.contract(abi).at("0x6777b0af8397991f78797362cfc13b5d40040247"); // upgradable contract address
+var impl = "0x0d1ac7367c63820d520b768be0dfee512cb954c0" // permission implement contract address
+var intr = "0x2342682a1a9eb9eb523b6a905173f3afcb5eb9e7" // permission interface contract address
